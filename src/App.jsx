@@ -74,57 +74,84 @@ export default function App() {
       return true;
     }
     // a^n b^n c^n
-else if (language === "anbncn") {
-  let i = 0;
+  else if (language === "anbncn") {
+    let i = 0;
 
-  while (i < str.length && str[i] === "a") i++;
-  let a = i;
+    while (i < str.length && str[i] === "a") i++;
+    let a = i;
 
-  let b = 0;
-  while (i < str.length && str[i] === "b") {
-    b++;
-    i++;
+    let b = 0;
+    while (i < str.length && str[i] === "b") {
+      b++;
+      i++;
+    }
+
+    let c = 0;
+    while (i < str.length && str[i] === "c") {
+      c++;
+      i++;
+    }
+
+    return i === str.length && a === b && b === c;
+  }
+  // a^n b^m (regular)
+  else if (language === "anbm") {
+    let i = 0;
+
+    while (i < str.length && str[i] === "a") i++;
+    while (i < str.length && str[i] === "b") i++;
+
+    return i === str.length;
   }
 
-  let c = 0;
-  while (i < str.length && str[i] === "c") {
-    c++;
-    i++;
+  // equal 0s and 1s
+  else if (language === "equal01") {
+    let zero = 0, one = 0;
+
+    for (let c of str) {
+      if (c === "0") zero++;
+      else if (c === "1") one++;
+      else return false;
+    }
+
+    return zero === one;
   }
 
-  return i === str.length && a === b && b === c;
-}
-
-// a^n b^m (regular)
-else if (language === "anbm") {
-  let i = 0;
-
-  while (i < str.length && str[i] === "a") i++;
-  while (i < str.length && str[i] === "b") i++;
-
-  return i === str.length;
-}
-
-// equal 0s and 1s
-else if (language === "equal01") {
-  let zero = 0, one = 0;
-
-  for (let c of str) {
-    if (c === "0") zero++;
-    else if (c === "1") one++;
-    else return false;
+  // palindrome
+  else if (language === "palindrome") {
+    return str === str.split("").reverse().join("");
   }
 
-  return zero === one;
-}
-
-// palindrome
-else if (language === "palindrome") {
-  return str === str.split("").reverse().join("");
-}
-
-    return false;
+      return false;
   }
+  function getExplanation(str) {
+  if (!str) return "";
+
+  if (language === "anbn") {
+    let a = (str.match(/a/g) || []).length;
+    let b = (str.match(/b/g) || []).length;
+
+    if (a !== b) return `❌ a(${a}) ≠ b(${b})`;
+    return "✅ Valid aⁿbⁿ";
+  }
+
+  else if (language === "anb2n") {
+    let a = (str.match(/a/g) || []).length;
+    let b = (str.match(/b/g) || []).length;
+
+    if (b !== 2 * a) return `❌ b(${b}) ≠ 2a(${2 * a})`;
+    return "✅ Valid aⁿb²ⁿ";
+  }
+
+  else if (language === "astar") {
+    if ([...str].some(c => c !== "a"))
+      return "❌ Contains non-a character";
+
+    return "✅ Valid a*";
+  }
+
+  return "";
+}
 
   // Auto proof
   function checkAllSplits() {
@@ -232,6 +259,9 @@ else if (language === "palindrome") {
       />
 
       {/* Input p */}
+      <p style={{ marginBottom: "5px", color: "#94a3b8" }}>
+        Pumping Length (p)
+      </p>  
       <input
         type="number"
         value={p}
@@ -299,6 +329,44 @@ else if (language === "palindrome") {
             : "⚠ Could not prove non-regular"}
         </div>
       )}
+      <div
+  style={{
+    marginTop: "30px",
+    display: "flex",
+    justifyContent: "center",
+    width: "100%",
+  }}
+>
+  <div
+    style={{
+      fontSize: "14px",
+      color: "#e2e8f0",
+      textAlign: "left",
+      background: "rgba(30, 41, 59, 0.7)",
+      padding: "16px",
+      borderRadius: "14px",
+      backdropFilter: "blur(10px)",
+      border: "1px solid rgba(148, 163, 184, 0.2)",
+      boxShadow: "0 8px 25px rgba(0,0,0,0.4)",
+      width: "320px",
+    }}
+  >
+    <div style={{ marginBottom: "10px" }}>
+      <span style={{ color: "#94a3b8" }}>Split</span><br />
+      <b style={{ color: "#38bdf8" }}>w = x · y · z</b>
+    </div>
+
+    <div style={{ marginBottom: "10px" }}>
+      <span style={{ color: "#94a3b8" }}>Pumping</span><br />
+      <b style={{ color: "#a78bfa" }}>xy<sup>k</sup>z ∈ L</b>
+    </div>
+
+    <div>
+      <span style={{ color: "#94a3b8" }}>Conditions</span><br />
+      <b style={{ color: "#facc15" }}>|xy| ≤ p , |y| &gt; 0</b>
+    </div>
+  </div>
+</div>
 
       {/* Selected Split */}
       {selectedSplit && (
@@ -359,6 +427,9 @@ else if (language === "palindrome") {
               }}
             >
               {isValid(pumped) ? "✅ Valid" : "❌ Not Valid"}
+              <div style={{ marginTop: "10px", fontSize: "14px", color: "#cbd5f5" }}>
+  {pumped && getExplanation(pumped)}
+</div>
             </div>
           </div>
 
